@@ -1,0 +1,1 @@
+ALTER TABLE "api_mapping" ADD COLUMN "api_mapping_type" varchar(255) NOT NULL;
