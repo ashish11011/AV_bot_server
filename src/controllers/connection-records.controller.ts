@@ -2,6 +2,8 @@ import type { Request, Response } from "express";
 import { and, eq } from "drizzle-orm";
 import { db, salesforceConnect, whatsappConnect, whatsappConnectNumber, ApiMapping } from "../../db/index.js";
 
+const VALID_MAPPING_TYPES = ["Account", "Deals", "ScheduleBooking", "WhatsAppMessage"];
+
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 function validParams(req: Request, res: Response) {
   if (!Number.isSafeInteger(Number(req.params.tenantId)) || Number(req.params.tenantId) <= 0 ||
@@ -75,8 +77,8 @@ export async function handleApiMapping(req: Request, res: Response) {
       if (typeof apiEndpoint !== "string" || !apiEndpoint.trim() || apiEndpoint.trim().length > 255) {
         return res.status(400).json({ msg: "API endpoint is required (maximum 255 characters)" });
       }
-      if (!["Account", "Deals", "ScheduleBooking"].includes(apiMappingType)) {
-        return res.status(400).json({ msg: "API mapping type must be Account, Deals, or ScheduleBooking" });
+      if (!VALID_MAPPING_TYPES.includes(apiMappingType)) {
+        return res.status(400).json({ msg: `API mapping type must be one of: ${VALID_MAPPING_TYPES.join(", ")}` });
       }
       if (fieldMapping === null || typeof fieldMapping !== "object" || Array.isArray(fieldMapping)) {
         return res.status(400).json({ msg: "Field mapping must be a JSON object" });
