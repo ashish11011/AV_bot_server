@@ -1,10 +1,5 @@
-import { createClient } from "redis";
-import {
-  redisHost,
-  redisPassword,
-  redisPort,
-  redisUsername,
-} from "../config/env.js";
+import { createClient } from 'redis';
+import { redisHost, redisPassword, redisPort, redisUsername } from '../config/env.js';
 
 const redisClient = createClient({
   username: redisUsername,
@@ -17,14 +12,12 @@ const redisClient = createClient({
   },
 });
 
-redisClient.on("error", (err: Error) =>
-  console.error("Redis Client Error:", err)
-);
+redisClient.on('error', (err: Error) => console.error('Redis Client Error:', err));
 
 export async function connectRedis() {
   if (!redisClient.isOpen) {
     await redisClient.connect();
-    console.log("Redis connected");
+    console.log('Redis connected');
   }
 }
 
