@@ -1,13 +1,8 @@
-import type { Request, Response } from "express";
-import {
-  whatsappAccessToken,
-  whatsappApiVersion,
-  whatsappPhoneNumberId,
-} from "../config/env.js";
+import type { Request, Response } from 'express';
+import { whatsappAccessToken, whatsappApiVersion, whatsappPhoneNumberId } from '../config/env.js';
 
-const VERIFY_TOKEN = "avolvelabs_whatsapp_token_2211";
-const CATALOG_IMAGE_URL =
-  "https://av-blog-web.s3.ap-south-1.amazonaws.com/plan-f01.jpg";
+const VERIFY_TOKEN = 'avolvelabs_whatsapp_token_2211';
+const CATALOG_IMAGE_URL = 'https://av-blog-web.s3.ap-south-1.amazonaws.com/plan-f01.jpg';
 
 type WhatsAppMessage = {
   from?: string;
@@ -20,7 +15,7 @@ type WhatsAppMessage = {
 async function sendCatalog(recipient: string) {
   if (!whatsappAccessToken || !whatsappPhoneNumberId) {
     console.error(
-      "Cannot send catalog: WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID is missing",
+      'Cannot send catalog: WHATSAPP_ACCESS_TOKEN or WHATSAPP_PHONE_NUMBER_ID is missing',
     );
     return;
   }
@@ -28,19 +23,19 @@ async function sendCatalog(recipient: string) {
   const response = await fetch(
     `https://graph.facebook.com/${whatsappApiVersion}/${whatsappPhoneNumberId}/messages`,
     {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Bearer ${whatsappAccessToken}`,
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
+        messaging_product: 'whatsapp',
+        recipient_type: 'individual',
         to: recipient,
-        type: "image",
+        type: 'image',
         image: {
           link: CATALOG_IMAGE_URL,
-          caption: "Here are the product details.",
+          caption: 'Here are the product details.',
         },
       }),
     },
@@ -55,16 +50,16 @@ async function sendCatalog(recipient: string) {
 }
 
 export async function facebookWebhookHandler(req: Request, res: Response) {
-  const mode = req.query["hub.mode"];
-  const token = req.query["hub.verify_token"];
-  const challenge = req.query["hub.challenge"];
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
-  if (mode === "subscribe" && token === VERIFY_TOKEN) {
-    console.log("Webhook verified");
+  if (mode === 'subscribe' && token === VERIFY_TOKEN) {
+    console.log('Webhook verified');
     return res.status(200).send(String(challenge));
   }
 
-  console.log("Verification failed:", { mode, token });
+  console.log('Verification failed:', { mode, token });
   return res.sendStatus(403);
 }
 
@@ -84,25 +79,25 @@ export async function facebookWebhookPostHandler(req: Request, res: Response) {
     for (const change of entry.changes ?? []) {
       for (const rawMessage of change.value?.messages ?? []) {
         const message = rawMessage as WhatsAppMessage;
-        console.log("WhatsApp message received:", message);
+        console.log('WhatsApp message received:', message);
 
-        const messageBody = message.text?.body?.toLowerCase() ?? "";
-        if (message.type === "text" && messageBody.includes("send catalog")) {
+        const messageBody = message.text?.body?.toLowerCase() ?? '';
+        if (message.type === 'text' && messageBody.includes('send catalog')) {
           if (!message.from) {
-            console.error("Cannot send catalog: incoming message has no sender");
+            console.error('Cannot send catalog: incoming message has no sender');
             continue;
           }
 
           try {
             await sendCatalog(message.from);
           } catch (error) {
-            console.error("Failed to send catalog:", error);
+            console.error('Failed to send catalog:', error);
           }
         }
       }
 
       for (const status of change.value?.statuses ?? []) {
-        console.log("WhatsApp message status:", status);
+        console.log('WhatsApp message status:', status);
       }
     }
   }
