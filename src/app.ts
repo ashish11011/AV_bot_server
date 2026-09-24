@@ -4,6 +4,7 @@ import redisRoutes from "./routes/redis.routes.js";
 import healthRoutes from "./routes/health.route.js";
 import tenantsRoutes from "./routes/tenants.routes.js";
 import webhookRouter from "./routes/webhook.routes.js";
+import messagesRoutes from "./routes/messages.routes.js";
 
 
 const app = express();
@@ -31,6 +32,7 @@ app.use("/health", healthRoutes);
 
 app.use("/tenants", tenantsRoutes);
 app.use("/webhook", webhookRouter)
+app.use("/messages", messagesRoutes);
 app.use("/", redisRoutes);
 
 export default app;
