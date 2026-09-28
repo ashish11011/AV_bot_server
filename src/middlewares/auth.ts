@@ -25,7 +25,7 @@ export async function verifyTenantToken(req: Request, res: Response, next: NextF
     req.tenant = tenant;
     next();
   } catch (error) {
-    console.error('verifyTenantToken failed:', error);
+    console.error('verifyyTenantToken failed:', error);
     return res.status(500).json({ msg: 'Could not verify token' });
   }
 }
